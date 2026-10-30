@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #0f1117;
+            color: #e4e4e7;
+            min-height: 100vh;
+            padding: 16px;
+        }
+
+        h1 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #a5b4fc;
+        }
+
+        .card {
+            background: #1a1d2e;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 1px solid #2a2d3e;
+        }
+
+        .upload-area {
+            border: 2px dashed #3a3d5e;
+            border-radius: 8px;
+            padding: 32px 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .upload-area:hover,
+        .upload-area.has-image {
+            border-color: #6366f1;
+        }
+
+        .upload-area img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            margin-top: 12px;
+        }
+
+        .upload-icon {
+            font-size: 2.5rem;
+            margin-bottom: 8px;
+        }
+
+        .upload-text {
+            color: #9ca3af;
+            font-size: 0.9rem;
+        }
+
+        .upload-btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .btn-source {
+            flex: 1;
+            padding: 12px 8px;
+            background: #2a2d3e;
+            color: #e4e4e7;
+            border: 1px solid #3a3d5e;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: background 0.2s, border-color 0.2s, color 0.2s;
+        }
+
+        .btn-source:hover,
+        .btn-source:active {
+            background: #373b52;
+            border-color: #6366f1;
+            color: #ffffff;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        textarea {
+            width: 100%;
+            background: #0f1117;
+            color: #e4e4e7;
+            border: 1px solid #2a2d3e;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 0.9rem;
+            resize: vertical;
+            min-height: 60px;
+            margin-top: 12px;
+            font-family: inherit;
+        }
+
+        textarea::placeholder {
+            color: #6b7280;
+        }
+
+        .label {
+            font-size: 0.85rem;
+            color: #9ca3af;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background: #6366f1;
+            color: white;
+        }
+
+        .btn-success {
+            background: #22c55e;
+            color: white;
+            margin-top: 12px;
+        }
+
+        .btn-secondary {
+            background: #2a2d3e;
+            color: #e4e4e7;
+            margin-top: 8px;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ffffff40;
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .status {
+            text-align: center;
+            padding: 12px;
+            font-size: 0.9rem;
+            color: #9ca3af;
+        }
+
+        .results-section {
+            display: none;
+        }
+
+        .results-section.visible {
+            display: block;
+        }
+
+        .nutrient-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .nutrient-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            font-size: 0.85rem;
+            border-bottom: 1px solid #2a2d3e;
+        }
+
+        .nutrient-name {
+            color: #9ca3af;
+        }
+
+        .nutrient-value {
+            color: #e4e4e7;
+            font-weight: 500;
+        }
+
+        .meal-desc {
+            font-size: 1rem;
+            color: #a5b4fc;
+            margin-bottom: 4px;
+            font-weight: 500;
+        }
+
+        .meal-type {
+            font-size: 0.8rem;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .confidence-badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .confidence-high {
+            background: #166534;
+            color: #4ade80;
+        }
+
+        .confidence-medium {
+            background: #854d0e;
+            color: #facc15;
+        }
+
+        .confidence-low {
+            background: #991b1b;
+            color: #fca5a5;
+        }
+
+        .macro-bar {
+            display: flex;
+            gap: 8px;
+            margin: 12px 0;
+        }
+
+        .macro-item {
+            flex: 1;
+            text-align: center;
+            padding: 10px 4px;
+            border-radius: 8px;
+            background: #0f1117;
+        }
+
+        .macro-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .macro-label {
+            font-size: 0.7rem;
+            color: #9ca3af;
+            margin-top: 2px;
+        }
+
+        .cal-color {
+            color: #f97316;
+        }
+
+        .pro-color {
+            color: #3b82f6;
+        }
+
+        .carb-color {
+            color: #22c55e;
+        }
+
+        .fat-color {
+            color: #eab308;
+        }
+
+        .items-list {
+            margin-top: 12px;
+        }
+
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #1a1d2e;
+            font-size: 0.9rem;
+        }
+
+        .item-name {
+            color: #e4e4e7;
+        }
+
+        .item-portion {
+            color: #6b7280;
+        }
+
+        .ingredient-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 3px 0 3px 16px;
+            font-size: 0.8rem;
+            color: #9ca3af;
+        }
+
+        .ingredient-inferred {
+            font-style: italic;
+            color: #6b7280;
+        }
+
+        .notes-text {
+            font-size: 0.85rem;
+            color: #9ca3af;
+            font-style: italic;
+            margin-top: 8px;
+        }
+
+        .success-msg {
+            text-align: center;
+            padding: 24px;
+            color: #4ade80;
+            font-size: 1.1rem;
+        }
+
+        .success-msg .check {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>🥗 Food Logger</h1>
+
+    <!-- Upload Section -->
+    <div class="card" id="uploadCard">
+        <div class="upload-area" id="uploadArea">
+            <div id="uploadPrompt">
+                <div class="upload-icon">📸</div>
+                <div class="upload-text">Add a photo of your food</div>
+            </div>
+            <img id="preview" style="display:none" />
+
+            <div class="upload-btn-group">
+                <button type="button" class="btn-source" onclick="document.getElementById('cameraInput').click()">
+                    📷 Camera
+                </button>
+                <button type="button" class="btn-source" onclick="document.getElementById('galleryInput').click()">
+                    🖼️ Photos
+                </button>
+            </div>
+        </div>
+        <input type="file" id="cameraInput" accept="image/*" capture="environment" onchange="handleFile(this)" />
+        <input type="file" id="galleryInput" accept="image/*" onchange="handleFile(this)" />
+
+        <span class="label" style="margin-top:16px">Optional context</span>
+        <textarea id="notes" placeholder="e.g., 'Chicken parm at Olive Garden' or 'About 2 cups of stew'"></textarea>
+
+        <button class="btn btn-primary" id="analyzeBtn" onclick="analyze()" disabled>
+            Analyze Photo
+        </button>
+    </div>
+
+    <!-- Status -->
+    <div class="status" id="status" style="display:none"></div>
+
+    <!-- Results Section -->
+    <div class="results-section" id="results">
+        <div class="card">
+            <div class="meal-type" id="mealType"></div>
+            <div class="meal-desc" id="mealDesc"></div>
+            <span class="confidence-badge" id="confidenceBadge"></span>
+
+            <div class="macro-bar">
+                <div class="macro-item">
+                    <div class="macro-value cal-color" id="resCal">—</div>
+                    <div class="macro-label">Calories</div>
+                </div>
+                <div class="macro-item">
+                    <div class="macro-value pro-color" id="resPro">—</div>
+                    <div class="macro-label">Protein</div>
+                </div>
+                <div class="macro-item">
+                    <div class="macro-value carb-color" id="resCarb">—</div>
+                    <div class="macro-label">Carbs</div>
+                </div>
+                <div class="macro-item">
+                    <div class="macro-value fat-color" id="resFat">—</div>
+                    <div class="macro-label">Fat</div>
+                </div>
+            </div>
+
+            <div class="items-list" id="itemsList"></div>
+
+            <div class="notes-text" id="aiNotes"></div>
+        </div>
+
+        <!-- Detailed Nutrients (collapsed by default) -->
+        <div class="card">
+            <span class="label" onclick="toggleNutrients()" style="cursor:pointer">
+                ▶ Detailed Nutrients (tap to expand)
+            </span>
+            <div class="nutrient-grid" id="nutrientGrid" style="display:none"></div>
+        </div>
+
+        <button class="btn btn-success" id="confirmBtn" onclick="confirmLog()">
+            ✓ Log This Meal
+        </button>
+        <button class="btn btn-secondary" onclick="reset()">
+            ✕ Discard & Start Over
+        </button>
+    </div>
+
+    <!-- Success Message -->
+    <div class="card" id="successMsg" style="display:none">
+        <div class="success-msg">
+            <div class="check">✅</div>
+            <div id="successText">Logged!</div>
+        </div>
+        <button class="btn btn-primary" onclick="reset()">Log Another Meal</button>
+    </div>
+
+    <script>
+        let imageBase64 = null;
+        let imageMimeType = null;
+
+        function handleFile(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const img = new Image();
+                img.onload = function () {
+                    // Scale down to max 1280px on the longest side
+                    const maxDim = 1280;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > maxDim || height > maxDim) {
+                        if (width > height) {
+                            height = Math.round((height * maxDim) / width);
+                            width = maxDim;
+                        } else {
+                            width = Math.round((width * maxDim) / height);
+                            height = maxDim;
+                        }
+                    }
+
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Compress to JPEG with 80% quality
+                    const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                    imageBase64 = compressedDataUrl.split(',')[1];
+                    imageMimeType = 'image/jpeg';
+
+                    // Show preview
+                    const preview = document.getElementById('preview');
+                    preview.src = compressedDataUrl;
+                    preview.style.display = 'block';
+                    document.getElementById('uploadPrompt').style.display = 'none';
+                    document.getElementById('uploadArea').classList.add('has-image');
+                    document.getElementById('analyzeBtn').disabled = false;
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function analyze() {
+            if (!imageBase64) return;
+
+            const notes = document.getElementById('notes').value.trim();
+            const btn = document.getElementById('analyzeBtn');
+            const status = document.getElementById('status');
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Analyzing...';
+            status.style.display = 'block';
+            status.textContent = 'Sending photo to Gemini for analysis...';
+
+            google.script.run
+                .withSuccessHandler(onAnalysisSuccess)
+                .withFailureHandler(onAnalysisError)
+                .analyzeFoodPhoto(imageBase64, imageMimeType, notes);
+        }
+
+        function onAnalysisSuccess(result) {
+            const status = document.getElementById('status');
+            const btn = document.getElementById('analyzeBtn');
+
+            if (!result.success) {
+                status.textContent = 'Error: ' + result.error;
+                btn.disabled = false;
+                btn.textContent = 'Retry Analysis';
+                return;
+            }
+
+            status.style.display = 'none';
+            displayResults(result.analysis);
+        }
+
+        function onAnalysisError(err) {
+            const status = document.getElementById('status');
+            status.textContent = 'Error: ' + err.message;
+            const btn = document.getElementById('analyzeBtn');
+            btn.disabled = false;
+            btn.textContent = 'Retry Analysis';
+        }
+
+        function displayResults(analysis) {
+            document.getElementById('uploadCard').style.display = 'none';
+
+            const results = document.getElementById('results');
+            results.classList.add('visible');
+
+            // Header
+            document.getElementById('mealType').textContent = (analysis.meal_type || '').toUpperCase();
+            document.getElementById('mealDesc').textContent = analysis.meal_description;
+
+            // Confidence badge
+            const badge = document.getElementById('confidenceBadge');
+            badge.textContent = analysis.confidence;
+            badge.className = 'confidence-badge confidence-' + analysis.confidence;
+
+            // Macros
+            const t = analysis.totals;
+            document.getElementById('resCal').textContent = t.calories;
+            document.getElementById('resPro').textContent = t.protein_g + 'g';
+            document.getElementById('resCarb').textContent = t.total_carbs_g + 'g';
+            document.getElementById('resFat').textContent = t.total_fat_g + 'g';
+
+            // Items list
+            const itemsList = document.getElementById('itemsList');
+            itemsList.innerHTML = '';
+            (analysis.items || []).forEach(item => {
+                const row = document.createElement('div');
+                row.className = 'item-row' + (item.source === 'inferred' ? ' ingredient-inferred' : '');
+                row.innerHTML = `<span class="item-name">${item.source === 'inferred' ? '~ ' : ''}${item.name}</span>
+                         <span class="item-portion">${item.estimated_portion}</span>`;
+                itemsList.appendChild(row);
+
+                // Ingredients for mixed dishes, indented under their item; "~" marks ones the AI inferred rather than saw or was told
+                (item.ingredients || []).forEach(ing => {
+                    const inferred = ing.source === 'inferred';
+                    const ingRow = document.createElement('div');
+                    ingRow.className = 'ingredient-row' + (inferred ? ' ingredient-inferred' : '');
+                    // When a recipe was provided, show the serving amount against the full-recipe amount (e.g., "75 g of 900 g")
+                    const recipeGrams = ing.recipe_grams != null ? ` of ${ing.recipe_grams} g` : '';
+                    ingRow.innerHTML = `<span>${inferred ? '~ ' : ''}${ing.name}</span>
+                         <span>${ing.grams} g${recipeGrams}</span>`;
+                    itemsList.appendChild(ingRow);
+                });
+            });
+
+            // AI notes
+            if (analysis.notes) {
+                document.getElementById('aiNotes').textContent = '💡 ' + analysis.notes;
+            }
+
+            // Detailed nutrients grid
+            const grid = document.getElementById('nutrientGrid');
+            grid.innerHTML = '';
+            const nutrientLabels = {
+                fiber_g: 'Fiber', sugar_g: 'Sugar', saturated_fat_g: 'Sat Fat',
+                trans_fat_g: 'Trans Fat', cholesterol_mg: 'Cholesterol', sodium_mg: 'Sodium',
+                potassium_mg: 'Potassium', calcium_mg: 'Calcium', iron_mg: 'Iron',
+                vitamin_a_mcg: 'Vitamin A', vitamin_c_mg: 'Vitamin C', vitamin_d_mcg: 'Vitamin D',
+                vitamin_e_mg: 'Vitamin E', vitamin_k_mcg: 'Vitamin K', thiamin_mg: 'Thiamin',
+                riboflavin_mg: 'Riboflavin', niacin_mg: 'Niacin', vitamin_b6_mg: 'B6',
+                folate_mcg: 'Folate', vitamin_b12_mcg: 'B12', magnesium_mg: 'Magnesium',
+                zinc_mg: 'Zinc', selenium_mcg: 'Selenium', phosphorus_mg: 'Phosphorus',
+                copper_mg: 'Copper', manganese_mg: 'Manganese', omega3_g: 'Omega-3'
+            };
+
+            const units = {
+                fiber_g: 'g', sugar_g: 'g', saturated_fat_g: 'g', trans_fat_g: 'g',
+                cholesterol_mg: 'mg', sodium_mg: 'mg', potassium_mg: 'mg', calcium_mg: 'mg',
+                iron_mg: 'mg', vitamin_a_mcg: 'mcg', vitamin_c_mg: 'mg', vitamin_d_mcg: 'mcg',
+                vitamin_e_mg: 'mg', vitamin_k_mcg: 'mcg', thiamin_mg: 'mg', riboflavin_mg: 'mg',
+                niacin_mg: 'mg', vitamin_b6_mg: 'mg', folate_mcg: 'mcg', vitamin_b12_mcg: 'mcg',
+                magnesium_mg: 'mg', zinc_mg: 'mg', selenium_mcg: 'mcg', phosphorus_mg: 'mg',
+                copper_mg: 'mg', manganese_mg: 'mg', omega3_g: 'g'
+            };
+
+            for (const [key, label] of Object.entries(nutrientLabels)) {
+                const val = t[key];
+                if (val === undefined || val === null) continue;
+                const item = document.createElement('div');
+                item.className = 'nutrient-item';
+                item.innerHTML = `<span class="nutrient-name">${label}</span>
+                          <span class="nutrient-value">${val} ${units[key]}</span>`;
+                grid.appendChild(item);
+            }
+        }
+
+        function toggleNutrients() {
+            const grid = document.getElementById('nutrientGrid');
+            const label = grid.previousElementSibling;
+            if (grid.style.display === 'none') {
+                grid.style.display = 'grid';
+                label.textContent = '▼ Detailed Nutrients (tap to collapse)';
+            } else {
+                grid.style.display = 'none';
+                label.textContent = '▶ Detailed Nutrients (tap to expand)';
+            }
+        }
+
+        function confirmLog() {
+            const btn = document.getElementById('confirmBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Logging...';
+
+            google.script.run
+                .withSuccessHandler(onLogSuccess)
+                .withFailureHandler(onLogError)
+                .confirmAndLog();
+        }
+
+        function onLogSuccess(result) {
+            if (!result.success) {
+                alert('Error: ' + result.error);
+                document.getElementById('confirmBtn').disabled = false;
+                document.getElementById('confirmBtn').textContent = '✓ Log This Meal';
+                return;
+            }
+
+            document.getElementById('results').classList.remove('visible');
+            const msg = document.getElementById('successMsg');
+            msg.style.display = 'block';
+            const s = result.summary;
+            document.getElementById('successText').textContent =
+                `Logged: ${s.description}\n${s.calories} cal · ${s.protein}g P · ${s.carbs}g C · ${s.fat}g F`;
+        }
+
+        function onLogError(err) {
+            alert('Error: ' + err.message);
+            document.getElementById('confirmBtn').disabled = false;
+            document.getElementById('confirmBtn').textContent = '✓ Log This Meal';
+        }
+
+        function reset() {
+            imageBase64 = null;
+            imageMimeType = null;
+
+            document.getElementById('cameraInput').value = '';
+            document.getElementById('galleryInput').value = '';
+            document.getElementById('preview').style.display = 'none';
+            document.getElementById('uploadPrompt').style.display = 'block';
+            document.getElementById('uploadArea').classList.remove('has-image');
+            document.getElementById('notes').value = '';
+            document.getElementById('analyzeBtn').disabled = true;
+            document.getElementById('analyzeBtn').textContent = 'Analyze Photo';
+            document.getElementById('status').style.display = 'none';
+            document.getElementById('confirmBtn').disabled = false;
+            document.getElementById('confirmBtn').textContent = '✓ Log This Meal';
+            document.getElementById('aiNotes').textContent = '';
+            document.getElementById('results').classList.remove('visible');
+            document.getElementById('successMsg').style.display = 'none';
+            document.getElementById('uploadCard').style.display = 'block';
+        }
+    </script>
+
+</body>
+
+</html>
